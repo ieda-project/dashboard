@@ -1,0 +1,1 @@
+> Ce tableau affiche l'ensemble des combinaisons de classifications ainsi que leur fréquence, c'est-à-dire le nombre de fois qu'un consultation a abouti à une combinaison. Ce tableau nous renseigne donc sur les associations les plus fréquentes.

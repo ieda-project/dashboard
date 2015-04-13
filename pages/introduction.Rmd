@@ -1,0 +1,3 @@
+Le tableau de bord IeDA vous permet de suivre l'avancée de la mise en oeuvre de l'approche IeDA à travers la visualisation el l'exploration des des données provenant du REC. Ces données sont mises à jour tous les mois.
+
+Vos suggestions et commentaires sont les bienvenus : gdf@tdh.ch

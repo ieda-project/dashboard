@@ -1,0 +1,1 @@
+> Ce tableau affiche les classifications les plus fréquement trouvées par les agents de santé. La fréquence correspond nombre de fois pour laquelle une classification a été identifiée. Une consultation peut aboutir à plusieurs classifications.

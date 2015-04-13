@@ -1,0 +1,1 @@
+> Ces graphes nous renseignent sur le nombre et la répartition des patients ayant consultés en fonction de leur âge, tranche d'âge et de leur sexe.

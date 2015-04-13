@@ -1,0 +1,1 @@
+> Ce graphe montre le nombre de consultations au cours du temps. Le camembert rend compte de la participation de chaque district au nombre total.

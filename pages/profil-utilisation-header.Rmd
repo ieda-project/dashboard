@@ -1,0 +1,1 @@
+> Ce graphique permet de visualiser l'intensité de l'activité des agents de santé au cours des heures de la journée et des jours de la semaine. Cette activité est représentée par le nombre de formulaire saisis par heure de la journée.

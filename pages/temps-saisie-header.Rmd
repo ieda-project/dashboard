@@ -1,0 +1,1 @@
+> Ce graphe renseigne le temps moyen de saisie pour chaque formulaire du REC. Une consulation est une succession de 3 formulaires : 1. enregistrement du patient (s'il ne l'est pas déjà), 2. évaluation du patient, 3. traitement du patient.

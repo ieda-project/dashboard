@@ -1,0 +1,1 @@
+> Ce graphe décrit la relation entre le temps de saisie du formulaire d'évaluation en fonction de la qualification de l'agent.
