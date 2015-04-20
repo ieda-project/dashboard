@@ -25,8 +25,14 @@ tablet_users_load_data <- function(filename) {
 
 mobile_users_load_data <- function(filename) {
   users <- read.csv(filename)
-  colnames(users) <- c("mobile_user", "district")
+  colnames(users) <- c("mobile_user", "site_code", "district")
   users
+}
+
+locations_load_data <- function(filename) {
+  locations <- read.csv(filename)
+  colnames(locations) <- c("site_code", "name", "parent_site_code", "latitude", "longitude")
+  locations
 }
 
 enroll_child_load_data <- function(filename, mobile_users) {
@@ -84,10 +90,14 @@ child_visit_load_data <- function(filename, tablet_users, mobile_users) {
                       "l_wfh", "m_wfh", "s_wfh", "zscore_wfh",
                       "l_hfa", "m_hfa", "s_hfa", "zscore_hfa")
   data <- filter(data, !grepl("test|formation|demo", mobile_user))
-  data$mobile_user <- factor(data$mobile_user)
-  data <- merge(data, tablet_users, by.x = "health_worker_id", by.y = "health_worker_id")
+  
   data <- merge(data, mobile_users, by.x = "mobile_user", by.y = "mobile_user")
+  data <- merge(data, tablet_users, by.x = "health_worker_id", by.y = "health_worker_id")
+  
+  data$health_worker_id <- factor(data$health_worker_id)
+  data$mobile_user <- factor(data$mobile_user)
   data$district <- factor(data$district)
+  data$site_code <- factor(data$site_code)
   
   data$started_on <- as.POSIXct(data$started_on, format = "%Y-%m-%d %H:%M")
   data$completed_on <- as.POSIXct(data$completed_on, format = "%Y-%m-%d %H:%M")

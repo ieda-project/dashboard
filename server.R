@@ -1,5 +1,9 @@
 library(googleVis)
 library(ggplot2)
+library(leaflet)
+
+# Histogramme sur le nombre de classifiations
+# Ajouter une section helpdesk
 
 function(input, output, session) {
   
@@ -42,9 +46,80 @@ function(input, output, session) {
   })
   
   sync_lag_data <- reactive({ sync_lag(visit_data_f(), "mobile_user") })
+  
   sync_lag_summary <- reactive({ summary(sync_lag_data()) })
-  n_consults_csps <- reactive({table(visit_data_f()$mobile_user)})
-  sum_data_entry <- reactive(sum(visit_data_f()$duration) + sum(treatment_data_f()$duration) + sum(enroll_data_f()$duration))
+  
+  n_consults_csps <- reactive({
+    f <- factor(visit_data_f()$mobile_user)
+    table(f)
+  })
+  
+  geo_data <- reactive({
+    data <- visit_data_f()
+    data$site_code <- factor(data$site_code)
+    
+    # Sync lag
+    d <- data.frame(sync_lag(data, "site_code"))
+    d <- cbind(rownames(d), d)
+    colnames(d) <- c("site_code", "sync_lag")
+    d <- mutate(d, sync_lag = round(as.numeric(sync_lag), 2))
+    d <- arrange(d, site_code)
+
+    # Consults
+    consults <- data.frame(table(data$site_code))
+    colnames(consults) <- c("site_code", "n_consults")
+    consults <- arrange(consults, site_code)
+    d <- mutate(d, n_consults = consults$n_consults)
+    
+    # Coordinates
+    d <- merge(d, locations_data, by.x = "site_code", by.y = "site_code")
+    d <- filter(d, !is.na(latitude))
+    d
+  })
+  
+  sum_data_entry <- reactive({sum(visit_data_f()$duration) + sum(treatment_data_f()$duration) + sum(enroll_data_f()$duration)})
+  
+  mapp <- createLeafletMap(session, "map")
+  
+  session$onFlushed(once = TRUE, function() {
+    paintObs <- observe({
+      data <- geo_data()
+      
+      mapp$clearShapes()
+      mapp$clearMarkers()
+      
+      if (input$geo_data == "position") {
+        mapp$addMarker(data$latitude, data$longitude)
+      } else {
+        radius <- data[, input$geo_data]
+        mapp$addCircle(data$latitude, data$longitude, radius * 5, data$site_code, )
+      }      
+    })
+    
+    session$onSessionEnded(paintObs$suspend)
+  })
+  
+  showInfoPopup <- function(site_code, lat, lng) {
+    content <- paste("CSPS :", site_code)
+    print(content)
+    mapp$showPopup(lat, lng, content, site_code)
+  }
+  
+  clickObs <- observe({
+    print("Hello3")
+    mapp$clearPopups()
+    event <- input$mapp_marker_click
+    if (is.null(event))
+      return()
+    print("Hello4")
+    isolate({
+      print("Hello1")
+      showInfoPopup(event$id, event$lat, event$lng)
+      print("Hello2")
+    })
+  })
+  
+  session$onSessionEnded(clickObs$suspend)
   
   output$rec_usage_who_line <- renderGvis({
     qual <- as.data.frame.matrix(t(table(visit_data_f()$qualification, visit_data_f()$started_year_month)))
@@ -259,7 +334,7 @@ function(input, output, session) {
     options <- list(height = GL_chart_h,
       legend = "{position:'none'}",
       hAxis = "{title:'Formulaire'}",
-      vAxis = "{title:'Durée moyenne de saisie (minutes)'}",
+      vAxis = "{title:'Durée moyenne de saisie (minutes)', minValue:0}",
       series = paste("{", ncol(data) - 3,": {type: 'line', lineWidth: 0, visibleInLegend: 'false'}}", sep = ""),
       seriesType = "bars")
     
@@ -322,7 +397,7 @@ function(input, output, session) {
       title = "Formulaire de traitement",
       legend = "{position:'none'}",
       hAxis = "{title:'Nombre de classifications'}",
-      vAxis = "{title:'Durée moyenne de saisie (minutes)', minValue:1}",
+      vAxis = "{title:'Durée moyenne de saisie (minutes)', minValue:0}",
       series = paste("{", ncol(data) - 3,": {type: 'line', lineWidth: 0, visibleInLegend: 'false'}}", sep = ""),
       seriesType = "bars")
     
