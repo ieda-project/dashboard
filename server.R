@@ -90,10 +90,13 @@ function(input, output, session) {
       
       if (input$geo_data == "position") {
         mapp$addMarker(data$latitude, data$longitude)
+      } else if (input$geo_data == "n_consults") {
+        radius <- data$n_consults
+        mapp$addCircle(data$latitude, data$longitude, radius * 5, data$site_code)
       } else {
-        radius <- data[, input$geo_data]
-        mapp$addCircle(data$latitude, data$longitude, radius * 5, data$site_code, )
-      }      
+        radius <- data$sync_lag
+        mapp$addCircle(data$latitude, data$longitude, radius * 100, data$site_code)
+      }
     })
     
     session$onSessionEnded(paintObs$suspend)
@@ -101,21 +104,17 @@ function(input, output, session) {
   
   showInfoPopup <- function(site_code, lat, lng) {
     content <- paste("CSPS :", site_code)
-    print(content)
     mapp$showPopup(lat, lng, content, site_code)
   }
   
   clickObs <- observe({
-    print("Hello3")
     mapp$clearPopups()
     event <- input$mapp_marker_click
     if (is.null(event))
       return()
-    print("Hello4")
+    
     isolate({
-      print("Hello1")
       showInfoPopup(event$id, event$lat, event$lng)
-      print("Hello2")
     })
   })
   
