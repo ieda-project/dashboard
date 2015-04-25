@@ -124,6 +124,19 @@ child_visit_load_data <- function(filename, tablet_users, mobile_users) {
                                                       "ibe" = "IDE", "ibe" = "IDE", "other" = "Autre"))
   data$n_classifications <- apply(data, 1, count_classifications)
   
+  # oreille, diahree, anemie, dysenterie - nothing to clean
+  data$classification_clean_oreille <- data$classification_oreille
+  data$classification_clean_diahree <- data$classification_diahree
+  data$classification_clean_vih <- clean_classifications(data$classification_vih, "vih")
+  data$classification_clean_paludisme <- clean_classifications(data$classification_paludisme, "paludisme")
+  data$classification_clean_deshydratation <- clean_classifications(data$classification_deshydratation, "deshydratation")
+  data$classification_clean_pneumonie <- clean_classifications(data$classification_pneumonie, "pneumonie")
+  data$classification_clean_malnutrition <- clean_classifications(data$classification_malnutrition, "malnutrition")
+  data$classification_clean_rougeole <- clean_classifications(data$classification_rougeole, "rougeole")
+  data$classification_clean_anemie <- data$classification_anemie
+  data$classification_clean_dysenterie <- data$classification_dysenterie
+  data$n_clean_classifications <- apply(data, 1, count_clean_classifications)
+  
   # Add weekday & time columns
   data$started_hour <- factor(hour(data$started_on))
   data$started_weekday <- ordered(weekdays(data$started_on), levels = weekdays_vector())
@@ -188,6 +201,19 @@ child_treatment_load_data <- function(filename, mobile_users) {
   data$classification_anemie <- revalue_classifications(data$classification_anemie, "anemie")
   data$classification_dysenterie <- revalue_classifications(data$classification_dysenterie, "dysenterie")
   data$n_classifications <- apply(data, 1, count_classifications)
+  
+  # oreille, diahree, anemie, dysenterie - nothing to clean
+  data$classification_clean_oreille <- data$classification_oreille
+  data$classification_clean_diahree <- data$classification_diahree
+  data$classification_clean_vih <- clean_classifications(data$classification_vih, "vih")
+  data$classification_clean_paludisme <- clean_classifications(data$classification_paludisme, "paludisme")
+  data$classification_clean_deshydratation <- clean_classifications(data$classification_deshydratation, "deshydratation")
+  data$classification_clean_pneumonie <- clean_classifications(data$classification_pneumonie, "pneumonie")
+  data$classification_clean_malnutrition <- clean_classifications(data$classification_malnutrition, "malnutrition")
+  data$classification_clean_rougeole <- clean_classifications(data$classification_rougeole, "rougeole")
+  data$classification_clean_anemie <- data$classification_anemie
+  data$classification_clean_dysenterie <- data$classification_dysenterie
+  data$n_clean_classifications <- apply(data, 1, count_clean_classifications)
   
   # Add weekday & time columns
   data$started_hour <- factor(hour(data$started_on))
@@ -263,6 +289,33 @@ count_classifications <- function (consult) {
     (consult["classification_deshydratation"] != "---") + (consult["classification_pneumonie"] != "---") +
     (consult["classification_malnutrition"] != "---") + (consult["classification_rougeole"] != "---") +
     (consult["classification_anemie"] != "---") + (consult["classification_dysenterie"] != "---")
+}
+
+count_clean_classifications <- function (consult) {
+  (consult["classification_clean_oreille"] != "---") + (consult["classification_clean_diahree"] != "---") +
+    (consult["classification_clean_vih"] != "---") + (consult["classification_clean_paludisme"] != "---") +
+    (consult["classification_clean_deshydratation"] != "---") + (consult["classification_clean_pneumonie"] != "---") +
+    (consult["classification_clean_malnutrition"] != "---") + (consult["classification_clean_rougeole"] != "---") +
+    (consult["classification_clean_anemie"] != "---") + (consult["classification_clean_dysenterie"] != "---")
+}
+
+clean_classifications <- function(var, classification) {
+  # oreille, diahree, anemie, dysenterie - nothing to clean
+  if (classification == "vih") {
+    var <- "---"
+  } else if (classification == "paludisme") {
+    var[var == "Pas de paludisme"] <- "---"
+  } else if (classification == "deshydratation") {
+    var[var == "Pas de deshy."] <- "---"
+  } else if (classification == "pneumonie") {
+    var[var == "Pas de pneumonie"] <- "---"
+  } else if (classification == "malnutrition") {
+    var[var == "Pas de malnutrition"] <- "---"
+  } else if (classification == "rougeole") {
+    var[var == "Antécédents"] <- "Rougeole"
+  }
+  var <- factor(var)
+  var
 }
 
 to_age_range_month <- function (data) {

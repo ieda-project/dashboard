@@ -1,9 +1,9 @@
+library(shiny)
+library(leaflet)
 library(googleVis)
 library(ggplot2)
-library(leaflet)
 
-# Histogramme sur le nombre de classifiations
-# Ajouter une section helpdesk
+# Nombre de nouveaux infirmiers sur une période pour avoir une idée du turnover du staff
 
 function(input, output, session) {
   
@@ -54,6 +54,8 @@ function(input, output, session) {
     table(f)
   })
   
+  sum_data_entry <- reactive({sum(visit_data_f()$duration) + sum(treatment_data_f()$duration) + sum(enroll_data_f()$duration)})
+  
   geo_data <- reactive({
     data <- visit_data_f()
     data$site_code <- factor(data$site_code)
@@ -77,8 +79,6 @@ function(input, output, session) {
     d
   })
   
-  sum_data_entry <- reactive({sum(visit_data_f()$duration) + sum(treatment_data_f()$duration) + sum(enroll_data_f()$duration)})
-  
   mapp <- createLeafletMap(session, "map")
   
   session$onFlushed(once = TRUE, function() {
@@ -92,10 +92,10 @@ function(input, output, session) {
         mapp$addMarker(data$latitude, data$longitude)
       } else if (input$geo_data == "n_consults") {
         radius <- data$n_consults
-        mapp$addCircle(data$latitude, data$longitude, radius * 5, data$site_code)
+        mapp$addCircle(data$latitude, data$longitude, radius * 5, data$site_code, list(stroke = F, fill = T, fillOpacity = 0.4))
       } else {
         radius <- data$sync_lag
-        mapp$addCircle(data$latitude, data$longitude, radius * 100, data$site_code)
+        mapp$addCircle(data$latitude, data$longitude, radius * 150, data$site_code, list(stroke = F, fill = T, fillOpacity = 0.4))
       }
     })
     
@@ -109,10 +109,11 @@ function(input, output, session) {
   
   clickObs <- observe({
     mapp$clearPopups()
-    event <- input$mapp_marker_click
-    if (is.null(event))
+    event <- input$mapp_shape_click
+    if (is.null(event)) {
+      print("-- NULL")
       return()
-    
+    }
     isolate({
       showInfoPopup(event$id, event$lat, event$lng)
     })
@@ -311,11 +312,17 @@ function(input, output, session) {
   })
   
   output$epi_profile_classifications_table <- renderDataTable({
-    classifications_frequency(visit_data_f())
+    clean <- F
+    if (input$class_freq == "illness") { clean <- T }
+    
+    classifications_frequency(visit_data_f(), clean)
   }, options = list(lengthMenu = c(10, 25, 50), pageLength = 10))
   
   output$epi_profile_combinations_table <- renderDataTable({
-    classifications_combinations(visit_data_f())
+    clean <- F
+    if (input$class_comb == "illness") { clean <- T }
+    
+    classifications_combinations(visit_data_f(), clean)
   }, options = list(lengthMenu = c(10, 25, 50), pageLength = 10, scrollX = T))
 
   output$data_entry_average <- renderGvis({

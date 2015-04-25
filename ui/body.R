@@ -1,9 +1,8 @@
-library(leaflet)
 body <- dashboardBody(
-  
   tabItems(
     tabItem(tabName = "overview",
       fluidRow(
+        valueBox("16.12.2014", "Date de déploiement", icon = icon("clock-o"), color = "green"),
         valueBox(GL_n_consults, "Consultations", icon = icon("stethoscope")),
         valueBox(GL_n_patients, "Patients", icon = icon("child"))
       ),
@@ -85,12 +84,16 @@ body <- dashboardBody(
     
     tabItem(tabName = "epi_profile_classifications",
       fluidRow(
+        box(title = "Choix des classifications", radioButtons("class_freq", "", 
+          c("Maladies" = "illness", "Maladies et états" = "illness_states"), inline = T), width = 12, status = "warning", solidHeader = T),
         box(title = "Fréquences des classifications", dataTableOutput("epi_profile_classifications_table"), width = 12, status = "primary", solidHeader = T)
       )
     ),
     
     tabItem(tabName = "epi_profile_combinations",
       fluidRow(
+        box(title = "Choix des classifications", radioButtons("class_comb", "", 
+          c("Maladies" = "illness", "Maladies et états" = "illness_states"), inline = T), width = 12, status = "warning", solidHeader = T),
         box(title = "Fréquence des combinaisons de classifications", dataTableOutput("epi_profile_combinations_table"), width = 12, status = "primary", solidHeader = T)
       )
     ),

@@ -31,21 +31,31 @@ hour_duration <- function(data) {
   tapply(data$duration, data$started_hour, mean)
 }
 
-classifications_combinations <- function (data) {
-  d <- aggregate(data$n_classifications,
-            by=list(oreille = data$classification_oreille, diahree = data$classification_diahree,
-                    paludisme = data$classification_paludisme, vih = data$classification_vih,
-                    deshydratation = data$classification_deshydratation, pneumonie = data$classification_pneumonie,
-                    malnutrition = data$classification_malnutrition, rougeole = data$classification_rougeole,
-                    anemie = data$classification_anemie, dysenterie = data$classification_dysenterie),
-            FUN=length)
+classifications_combinations <- function (data, clean) {
+  if (clean == T) {
+    by = list(oreille = data$classification_clean_oreille, diahree = data$classification_clean_diahree,
+      paludisme = data$classification_clean_paludisme, vih = data$classification_clean_vih,
+      deshydratation = data$classification_clean_deshydratation, pneumonie = data$classification_clean_pneumonie,
+      malnutrition = data$classification_clean_malnutrition, rougeole = data$classification_clean_rougeole,
+      anemie = data$classification_clean_anemie, dysenterie = data$classification_clean_dysenterie)
+  } else {
+    by = list(oreille = data$classification_oreille, diahree = data$classification_diahree,
+      paludisme = data$classification_paludisme, vih = data$classification_vih,
+      deshydratation = data$classification_deshydratation, pneumonie = data$classification_pneumonie,
+      malnutrition = data$classification_malnutrition, rougeole = data$classification_rougeole,
+      anemie = data$classification_anemie, dysenterie = data$classification_dysenterie)
+  }
+  
+  d <- aggregate(data$n_classifications, by=by, FUN=length)
   d <- arrange(d, desc(x))
   d <- dplyr::rename(d, frequency = x)
   d
 }
 
-classifications_frequency <- function (data) {
-  d <- select(data, starts_with("classification_"))
+classifications_frequency <- function (data, clean) {
+  if (clean == T) { d <- select(data, starts_with("classification_clean_")) }
+  else { d <- select(data, starts_with("classification_"), -starts_with("classification_clean_")) }
+  
   d <- lapply(d, function(x) as.data.frame(table(x)))
   n <- sum(d[[1]]$Freq)
   d <- do.call("rbind", d)
