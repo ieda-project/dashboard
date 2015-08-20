@@ -1,1 +1,0 @@
-Ce graphique montre le nombre de consultations effectuées pour chaque type d'agent de santé ayant consulté au cours du temps. Le camembert rend compte de la proportion des consultions réalisées pour chaque type d'agent sur l'ensemble de la période.

@@ -1,1 +1,0 @@
-> Ces graphes montrent le nombre et la proportion des centres de santé ayant un délai de synchronisation inférieur et supérieur à la moyenne.

@@ -46,7 +46,7 @@ classifications_combinations <- function (data, clean) {
       anemie = data$classification_anemie, dysenterie = data$classification_dysenterie)
   }
   
-  d <- aggregate(data$n_classifications, by=by, FUN=length)
+  d <- aggregate(data$n_classifications, by = by, FUN = length)
   d <- arrange(d, desc(x))
   d <- dplyr::rename(d, frequency = x)
   d
@@ -66,6 +66,33 @@ classifications_frequency <- function (data, clean) {
   d
 }
 
+classification_list <- function(data, clean) {
+  if (clean == T) { d <- select(data, starts_with("classification_clean_")) }
+  else { d <- select(data, starts_with("classification_"), -starts_with("classification_clean_")) }
+  
+  colnames(d) <- c("oreille", "diahree", "vih", "paludisme", "deshydratation", "pneumonie", "malnutrition", "rougeole", "anemie", "dysenterie")
+  n <- ncol(d)
+  res <- data.frame(name = character(0), group = numeric(0))
+  
+  for(i in 1:n) {
+    t <- data.frame(levels(d[, i]), i)
+    colnames(t) <- c("name", "group")
+    res <- rbind(res, t)
+  }
+  
+  res <- filter(res, name != "---")
+  res
+  #as.data.frame.matrix(t(combn(v, 2)))
+}
+
+combo_check <- function(combo, groups = "") {
+  r <- combo
+  if (groups[combo[1] - 1] == groups[combo[2] - 1]) {
+    r <- c("", "")
+  }
+  r
+}
+
 consulting_health_workers <- function(data) {
   data <- distinct(data, health_worker_id)
   data <- select(data, qualification, district, mobile_user)
@@ -82,3 +109,5 @@ sync_lag <- function (data, group_by) {
 format_number <- function(number) {
   format(number, digits = 9, decimal.mark = "'", big.mark = "'",small.mark = ".", , small.interval = 3)
 }
+
+
